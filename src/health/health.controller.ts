@@ -1,18 +1,28 @@
-import { Controller, Get } from '@nestjs/common';
-import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
-import { ApiTags } from '@nestjs/swagger';
-import { Public } from '@/common/decorators/public.decorator.js';
+  import { Controller, Get } from '@nestjs/common';
+  import {
+    HealthCheck,
+    HealthCheckService,
+    PrismaHealthIndicator,
+  } from '@nestjs/terminus';
+  import { ApiTags } from '@nestjs/swagger';
+  import { Public } from '@/common/decorators/public.decorator.js';
+  import { PrismaService } from '@/prisma/prisma.service.js';
 
-@ApiTags('health')
-@Controller('health')
-export class HealthController {
-  constructor(private health: HealthCheckService) {}
+  @ApiTags('health')  
+  @Controller('health')
+  export class HealthController {
+    constructor(
+      private health: HealthCheckService,
+      private prismaHealth: PrismaHealthIndicator,
+      private prisma: PrismaService,
+    ) {}
 
-  @Get()
-  @Public()
-  @HealthCheck()
-  check() {
-    // DB health check added in B2 once PrismaModule is available
-    return this.health.check([]);
+    @Get()
+    @Public()
+    @HealthCheck()
+    check() {
+      return this.health.check([
+        () => this.prismaHealth.pingCheck('database', this.prisma),
+      ]);
+    }
   }
-}

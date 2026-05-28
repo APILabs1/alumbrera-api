@@ -39,13 +39,37 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter(app.get(Logger)));
 
   if (process.env.NODE_ENV !== 'production') {
+    const issuerBase = process.env.AZURE_ISSUER!.replace(/\/v2\.0$/, '');
+    const apiScope = `api://${process.env.AZURE_AUDIENCE}/access_as_user`;
     const config = new DocumentBuilder()
       .setTitle('Alumbrera API')
       .setVersion('0.1.0')
-      .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
+      .addOAuth2({
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: `${issuerBase}/oauth2/v2.0/authorize`,
+            tokenUrl: `${issuerBase}/oauth2/v2.0/token`,
+            scopes: {
+              openid: 'Sign in',
+              profile: 'Profile',
+              [apiScope]: 'Access API',
+            },
+          },
+        },
+      })
       .build();
     const doc = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, doc, { jsonDocumentUrl: 'docs-json' });
+    SwaggerModule.setup('docs', app, doc, {
+      jsonDocumentUrl: 'docs-json',
+      swaggerOptions: {
+        persistAuthorization: true,
+        initOAuth: {
+          clientId: process.env.AZURE_AUDIENCE,
+          usePkceWithAuthorizationCodeGrant: true,
+        },
+      },
+    });
   }
 
   const port = process.env.PORT ?? 3001;
