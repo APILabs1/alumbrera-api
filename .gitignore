@@ -1,3 +1,6 @@
+# internal docs (not for repo)
+backend-guide.md
+
 # compiled output
 /dist
 /node_modules
