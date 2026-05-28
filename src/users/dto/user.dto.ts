@@ -22,7 +22,7 @@
   }
 
   export class SyncUserDto {
-    @IsUUID()
+    @IsUUID('all')
     oid!: string;
 
     @IsEmail()

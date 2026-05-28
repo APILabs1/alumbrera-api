@@ -25,6 +25,7 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["jest", "node"]
   }
 }
