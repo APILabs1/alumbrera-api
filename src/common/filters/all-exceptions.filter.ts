@@ -31,8 +31,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     res.status(status).json({
       statusCode: status,
-      message:
-        typeof message === 'string' ? message : (message as any).message,
+      message: typeof message === 'string' ? message : (message as any).message,
       timestamp: new Date().toISOString(),
       path: req.url,
     });

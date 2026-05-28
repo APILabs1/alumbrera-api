@@ -1,42 +1,42 @@
-  import { ApiProperty } from '@nestjs/swagger';
-  import { IsEmail, IsOptional, IsString, IsUUID } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsOptional, IsString, IsUUID } from 'class-validator';
 
-  export class UserDto {
-    @ApiProperty({ format: 'uuid' })
-    id!: string;
+export class UserDto {
+  @ApiProperty({ format: 'uuid' })
+  id!: string;
 
-    @ApiProperty({ format: 'email' })
-    email!: string;
+  @ApiProperty({ format: 'email' })
+  email!: string;
 
-    @ApiProperty({ nullable: true })
-    displayName!: string | null;
+  @ApiProperty({ nullable: true })
+  displayName!: string | null;
 
-    @ApiProperty()
-    loginCount!: number;
+  @ApiProperty()
+  loginCount!: number;
 
-    @ApiProperty({ format: 'date-time', nullable: true })
-    lastLoginAt!: Date | null;
+  @ApiProperty({ format: 'date-time', nullable: true })
+  lastLoginAt!: Date | null;
 
-    @ApiProperty({ format: 'date-time' })
-    createdAt!: Date;
-  }
+  @ApiProperty({ format: 'date-time' })
+  createdAt!: Date;
+}
 
-  export class SyncUserDto {
-    @IsUUID('all')
-    oid!: string;
+export class SyncUserDto {
+  @IsUUID('all')
+  oid!: string;
 
-    @IsEmail()
-    email!: string;
+  @IsEmail()
+  email!: string;
 
-    @IsOptional()
-    @IsString()
-    displayName?: string;
+  @IsOptional()
+  @IsString()
+  displayName?: string;
 
-    @IsOptional()
-    @IsString()
-    givenName?: string;
+  @IsOptional()
+  @IsString()
+  givenName?: string;
 
-    @IsOptional()
-    @IsString()
-    familyName?: string;
-  }
+  @IsOptional()
+  @IsString()
+  familyName?: string;
+}

@@ -18,10 +18,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         cacheMaxAge: 10 * 60 * 1000,
         rateLimit: true,
         jwksRequestsPerMinute: 10,
-        jwksUri: config.get<string>('AZURE_JWKS_URI')!,
+        jwksUri: config.get<string>('AZURE_JWKS_URI'),
       }),
-      audience: config.get<string>('AZURE_AUDIENCE')!,
-      issuer: config.get<string>('AZURE_ISSUER')!,
+      audience: config.get<string>('AZURE_AUDIENCE'),
+      issuer: config.get<string>('AZURE_ISSUER'),
       algorithms: ['RS256'],
     });
   }

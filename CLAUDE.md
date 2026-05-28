@@ -50,5 +50,6 @@ JWT authentication via **passport-jwt** + **jwks-rsa** against Azure Entra Exter
 ### ESLint
 
 - `@typescript-eslint/no-explicit-any` is disabled.
-- `@typescript-eslint/no-floating-promises` and `no-unsafe-argument` are warnings, not errors.
+- `@typescript-eslint/no-floating-promises`, `no-unsafe-argument`, `no-unsafe-assignment`, `no-unsafe-member-access`, `no-unsafe-call` and `no-unsafe-return` are warnings, not errors.
+- `@typescript-eslint/require-await` is disabled.
 - Prettier is enforced as an ESLint error (`prettier/prettier`).
