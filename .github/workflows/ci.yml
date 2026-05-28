@@ -108,18 +108,20 @@ jobs:
 
       - name: Smoke test the image
         run: |
-          docker run --rm -d --name api-smoke --network host \
+          docker run -d --name api-smoke --network host \
             -e DB_HOST=localhost \
             -e DB_PORT=5432 \
             -e DB_USER=alumbrera \
             -e DB_PASSWORD=localdev \
             -e DB_NAME=alumbrera \
             -e DB_SSL=false \
+            -e DATABASE_URL=postgresql://alumbrera:localdev@localhost:5432/alumbrera \
             -e AZURE_JWKS_URI=https://example.com/keys \
             -e AZURE_ISSUER=https://example.com/ \
             -e AZURE_AUDIENCE=00000000-0000-0000-0000-000000000000 \
             -e ALLOWED_ORIGINS=http://localhost:5173 \
             alumbrera-api:${{ github.sha }}
-          sleep 10
-          docker logs api-smoke | grep -q "API listening" || (docker logs api-smoke; exit 1)
-          docker stop api-smoke
+          sleep 15
+          docker logs api-smoke
+          docker logs api-smoke | grep -q "API listening" || (docker rm -f api-smoke; exit 1)
+          docker rm -f api-smoke
