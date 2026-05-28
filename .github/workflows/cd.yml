@@ -1,0 +1,83 @@
+name: CI/CD — alumbrera-api
+
+on:
+  push:
+    branches:
+      - develop
+    tags:
+      - 'v*'
+
+env:
+  ACR: acralumbrera.azurecr.io
+  IMAGE_NAME: alumbrera-api
+
+jobs:
+  ci:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Login to Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name acralumbrera
+
+      - name: Build & Push Docker image
+        run: |
+          docker build -t $ACR/$IMAGE_NAME:${{ github.sha }} .
+          docker push $ACR/$IMAGE_NAME:${{ github.sha }}
+
+  deploy-dev:
+    name: Deploy → dev
+    needs: ci
+    if: github.ref == 'refs/heads/develop'
+    uses: APILabs1/alumbrera-infra/.github/workflows/deploy.yml@main
+    with:
+      environment: dev
+      image: acralumbrera.azurecr.io/alumbrera-api:${{ github.sha }}
+      app_name: ca-alumbrera-api-dev
+      resource_group: rg-alumbrera-prod
+    secrets: inherit
+
+  deploy-prod:
+    name: Deploy → prod
+    needs: ci
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: APILabs1/alumbrera-infra/.github/workflows/deploy.yml@main
+    with:
+      environment: prod
+      image: acralumbrera.azurecr.io/alumbrera-api:${{ github.sha }}
+      app_name: ca-alumbrera-api-prod
+      resource_group: rg-alumbrera-prod
+    secrets: inherit
