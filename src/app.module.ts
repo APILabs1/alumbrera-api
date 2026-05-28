@@ -1,18 +1,12 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { JwtAuthGuard } from './auth/auth.guard';
-import { HealthController } from './health/health.controller';
-import { MeController } from './me/me.controller';
+import { ConfigModule } from './config/config.module.js';
+import { LoggerModule } from './common/logger/logger.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { HealthModule } from './health/health.module.js';
+import { MeController } from './me/me.controller.js';
 
 @Module({
-  imports: [AuthModule],
-  controllers: [AppController, HealthController, MeController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
-  ],
+  imports: [ConfigModule, LoggerModule, AuthModule, HealthModule],
+  controllers: [MeController],
 })
 export class AppModule {}
