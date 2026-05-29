@@ -41,6 +41,9 @@ jobs:
   deploy:
     name: Deploy to dev
     needs: publish
+    permissions:
+      id-token: write
+      contents: read
     uses: APILabs1/alumbrera-infra/.github/workflows/deploy.yml@main
     with:
       environment: dev
