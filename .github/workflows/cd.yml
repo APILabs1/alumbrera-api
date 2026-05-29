@@ -1,0 +1,50 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [dev]
+
+jobs:
+  publish:
+    name: Build and push to ACR
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      image: ${{ steps.push.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Login to Azure (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push image
+        id: push
+        run: |
+          SHA=${{ github.event.workflow_run.head_sha }}
+          IMAGE=acralumbrera.azurecr.io/alumbrera-api:$SHA
+          az acr login --name acralumbrera
+          docker build -t $IMAGE .
+          docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Deploy to dev
+    needs: publish
+    uses: APILabs1/alumbrera-infra/.github/workflows/deploy.yml@main
+    with:
+      environment: dev
+      image: ${{ needs.publish.outputs.image }}
+      app_name: ca-alumbrera-api-dev
+      resource_group: rg-alumbrera-prod
+    secrets: inherit
