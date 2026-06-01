@@ -3,7 +3,7 @@ name: CI/CD — alumbrera-api
 on:
   push:
     branches:
-      - develop
+      - dev
     tags:
       - 'v*'
 
@@ -61,7 +61,7 @@ jobs:
   deploy-dev:
     name: Deploy → dev
     needs: ci
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/dev'
     uses: APILabs1/alumbrera-infra/.github/workflows/deploy.yml@main
     with:
       environment: dev
